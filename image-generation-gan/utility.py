@@ -29,9 +29,11 @@ def load_data(path):
   labels = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
-      if str(directory) == "Abra":
         image = read_image(path + "/" + str(directory) + "/" + str(filename))
-        image = resize(image)
+        try:
+          image = resize(image)
+        except:
+          print(path + "/" + str(directory) + "/" + str(filename))
         images.append(image)
         labels.append(str(directory))
 
