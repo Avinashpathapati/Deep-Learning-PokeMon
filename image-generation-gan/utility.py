@@ -1,12 +1,8 @@
 # Utility module
-# Author: Andreas Pentaliotis
 # Module to implement utility functions for generator.
 
-import matplotlib.pyplot as plt
-import argparse
 import os
 import cv2 as cv
-import pandas as pd
 
 
 def plot(image, name):
@@ -15,29 +11,22 @@ def plot(image, name):
   cv.destroyWindow(name)
 
 def read_image(path):
-  return cv.imread(path, cv.IMREAD_UNCHANGED)
+  return cv.imread(path, cv.IMREAD_COLOR)
 
 def resize(image):
-  return cv.resize(image, (256, 256))
+  return cv.resize(image, (25, 25))
 
 def load_data(path):
   print("loading images...")
   
-  # Load the images and labels into a dataframe.
-  data = pd.DataFrame()
+  # Load the images and labels, while resizing them.
   images = []
   labels = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
         image = read_image(path + "/" + str(directory) + "/" + str(filename))
-        try:
-          image = resize(image)
-        except:
-          print(path + "/" + str(directory) + "/" + str(filename))
+        image = resize(image)
         images.append(image)
         labels.append(str(directory))
-
-  data["images"] = images
-  data["labels"] = labels
   
-  return data
+  return images, labels
