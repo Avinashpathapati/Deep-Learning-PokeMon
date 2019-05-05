@@ -1,4 +1,5 @@
 # GAN module
+# Author: Andreas Pentaliotis
 # Module to implement a generative adversarial network.
 
 from keras.models import Sequential
@@ -16,14 +17,51 @@ from keras.layers.core import Reshape
 from keras.layers import UpSampling2D
 from keras import backend as K
 K.set_image_dim_ordering("tf")
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 
 class GAN():
-  def __init__(self, height, width, depth):
+  def __init__(self, height, width, depth, classes):
     self.height = height
     self.width = width
     self.depth = depth
+    self.classes = classes
     self.__build()
+
+  def summary(self):
+    print()
+    print()
+    print("ADVERSARIAL")
+    print("--------------------")
+    self.adversarial.summary()
+    print()
+    print("DISCRIMINATOR")
+    print("--------------------")
+    self.discriminator.summary()
+    print()
+    print("GENERATOR")
+    print("--------------------")
+    self.generator.summary()
+
+  def train(self, images, labels, epochs, batch_size):
+    for epoch in range(epochs):
+      # Select a mini batch of images randomly.
+      indices = np.random.randint(0, images.shape[0], batch_size)
+      real_images = images[indices]
+      real_labels = labels[indices]
+      
+      # Generate fake images from noise.
+      noise = np.random.normal(0, 1, (batch_size, 100))
+      fake_images = self.generator.predict(noise)
+
+      # Train the discriminator with supervised learning on real images and get the
+      # predictions of the discriminator 
+      discriminator_loss = self.discriminator.train_on_batch(real_images, real_labels)
+      discriminator_predictions = 
+    pass
 
   def __build(self):
     # Build the generator and discriminator and compile the discriminator.
@@ -33,10 +71,10 @@ class GAN():
 
     # Build and compile the adversarial network.
     self.discriminator.trainable = False
-    input_noise = Input(shape=(100,))
-    fake_image = self.generator(input_noise)
-    decision = self.discriminator(fake_image)
-    self.adversarial = Model(input_noise, decision)
+    noise = Input(shape=(100,))
+    fake_image = self.generator(noise)
+    label = self.discriminator(fake_image)
+    self.adversarial = Model(noise, label)
     self.adversarial.compile(loss="binary_crossentropy", optimizer="adam")
 
   def __build_discriminator(self):
@@ -71,7 +109,7 @@ class GAN():
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
 
-    model.add(Dense(1, activation="sigmoid"))
+    model.add(Dense(self.classes, activation="softmax"))
 
     return model
 

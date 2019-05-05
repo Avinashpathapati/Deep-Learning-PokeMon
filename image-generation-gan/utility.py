@@ -1,5 +1,6 @@
 # Utility module
-# Module to implement utility functions for generator.
+# Author: Andreas Pentaliotis
+# Module to implement utility functions.
 
 import os
 import cv2 as cv
@@ -13,9 +14,6 @@ def plot(image, name):
 def read_image(path):
   return cv.imread(path, cv.IMREAD_COLOR)
 
-def resize(image):
-  return cv.resize(image, (25, 25))
-
 def load_data(path):
   print("loading images...")
   
@@ -24,8 +22,8 @@ def load_data(path):
   labels = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
+      if (directory == "Mew"):
         image = read_image(path + "/" + str(directory) + "/" + str(filename))
-        image = resize(image)
         images.append(image)
         labels.append(str(directory))
   

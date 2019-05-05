@@ -1,32 +1,28 @@
 # Train module
+# Author: Andreas Pentaliotis
 # Module to implement training of a model on the data.
 
-import matplotlib
-matplotlib.use("Agg")
-
 import numpy as np
-import matplotlib.pyplot as plt
 
 from utility import load_data
 from preprocessing import preprocess
 from augmentation import augment
+from gan import GAN
 
 
 images, labels = load_data("./pokemon-generation-one")
 classes = len(np.unique(labels))
 
 images, labels = augment(images, labels)
-x_train, x_test, y_train, y_test = preprocess(images, labels)
+images, labels = preprocess(images, labels)
 
-# Delete the original lists to free memory.
-del images[:]
-del labels[:]
+gan = GAN(images.shape[1], images.shape[2], 3, classes)
+gan.summary()
+
+gan.train(images, labels, epochs=1, batch_size=5)
+
 """
-model = build_cnn(x_train.shape[1], x_train.shape[2], 3, classes)
-model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-print(model.summary())
-
-history = model.fit(x_train, y_train, validation_split=0.25, epochs=500, batch_size=32)
+history = model.fit(x_train, y_train, validation_split=0.25, epochs=1, batch_size=32)
 model.save("model.h5")
 
 plt.plot(history.history["acc"])

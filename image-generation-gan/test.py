@@ -1,5 +1,5 @@
 # Test module
-# Module to implement testing for other modules.
+# Module to implement testing for other modules. - To be removed.
 
 
 """
@@ -13,7 +13,5 @@ for image, label in zip(images, labels):
 """
 
 from gan import GAN
-m = GAN(256, 256, 3)
-m.adversarial.summary()
-m.discriminator.summary()
-m.generator.summary()
+m = GAN(256, 256, 3, 10)
+m.summary()
