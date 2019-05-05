@@ -28,6 +28,7 @@ def randomize(images, labels):
   images[:], labels[:] = zip(*data)
   return images, labels
 
+############# No zooming in / out augmentation, so we don't need padding. ##############
 def preprocess(images, labels):
   print("preprocessing data...")
 
@@ -40,7 +41,7 @@ def preprocess(images, labels):
   # Pad all the images with white pixels to maximum height and maximum width.
   max_width = np.amax(np.unique([x.shape[1] for x in images]))
   max_height = np.amax(np.unique([x.shape[0] for x in images]))
-  images = [pad(x, max_width, max_height) for x in images]
+  #images = [pad(x, max_width, max_height) for x in images]
 
   images = [x / 255 for x in images]
 

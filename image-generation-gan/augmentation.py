@@ -26,14 +26,15 @@ def translate(image):
   matrix = np.float32([[1, 0, horizontal_shift], [0, 1, vertical_shift]]) 
   return cv.warpAffine(image, matrix, (columns, rows), borderValue = (255, 255, 255))
 
+############# Removed zooming in / out to keep the generator parameters fixed. ##############
 def augment(images, labels):
   print("augmenting images...")
 
-  scaled_images = [scale(x) for x in images]
+  #scaled_images = [scale(x) for x in images]
   rotated_images = [rotate(x) for x in images]
   translated_images = [translate(x) for x in images]
   
-  images.extend(scaled_images)
+  #images.extend(scaled_images)
   images.extend(rotated_images)
   images.extend(translated_images)
   labels = labels * 4
