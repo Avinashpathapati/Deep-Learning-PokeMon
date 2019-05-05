@@ -17,14 +17,11 @@ def read_image(path):
 def load_data(path):
   print("loading images...")
   
-  # Load the images and labels, while resizing them.
   images = []
-  labels = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
       if (directory == "Mew"):
         image = read_image(path + "/" + str(directory) + "/" + str(filename))
         images.append(image)
-        labels.append(str(directory))
   
-  return images, labels
+  return images

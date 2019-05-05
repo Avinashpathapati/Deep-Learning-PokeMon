@@ -24,11 +24,10 @@ import matplotlib.pyplot as plt
 
 
 class GAN():
-  def __init__(self, height, width, depth, classes):
+  def __init__(self, height, width, depth):
     self.height = height
     self.width = width
     self.depth = depth
-    self.classes = classes
     self.__build()
 
   def summary(self):
@@ -46,21 +45,28 @@ class GAN():
     print("--------------------")
     self.generator.summary()
 
-  def train(self, images, labels, epochs, batch_size):
+  def train(self, images, epochs, batch_size):
     for epoch in range(epochs):
       # Select a mini batch of images randomly.
       indices = np.random.randint(0, images.shape[0], batch_size)
       real_images = images[indices]
-      real_labels = labels[indices]
+      real_labels = np.ones((batch_size, 1))
       
       # Generate fake images from noise.
       noise = np.random.normal(0, 1, (batch_size, 100))
       fake_images = self.generator.predict(noise)
+      fake_labels = np.zeros((batch_size, 1))
 
-      # Train the discriminator with supervised learning on real images and get the
-      # predictions of the discriminator 
-      discriminator_loss = self.discriminator.train_on_batch(real_images, real_labels)
-      discriminator_predictions = 
+      # Train the discriminator.
+      discriminator_loss_real = self.discriminator.train_on_batch(real_images, real_labels)
+      discriminator_loss_fake = self.discriminator.train_on_batch(fake_images, fake_labels)
+      discriminator_loss = 0.5 * np.add(discriminator_loss_real, discriminator_loss_fake)
+
+      # Train the generator.
+      generator_loss = self.adversarial.train_on_batch(noise, real_labels)
+
+      print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, discriminator_loss[0], 100*discriminator_loss[1], generator_loss))
+
     pass
 
   def __build(self):
@@ -109,7 +115,7 @@ class GAN():
     model.add(Activation("relu"))
     model.add(Dropout(0.5))
 
-    model.add(Dense(self.classes, activation="softmax"))
+    model.add(Dense(1, activation="sigmoid"))
 
     return model
 

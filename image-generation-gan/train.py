@@ -10,16 +10,15 @@ from augmentation import augment
 from gan import GAN
 
 
-images, labels = load_data("./pokemon-generation-one")
-classes = len(np.unique(labels))
+images = load_data("./pokemon-generation-one")
 
-images, labels = augment(images, labels)
-images, labels = preprocess(images, labels)
+images = augment(images)
+images = preprocess(images)
 
-gan = GAN(images.shape[1], images.shape[2], 3, classes)
+gan = GAN(images.shape[1], images.shape[2], images.shape[3])
 gan.summary()
 
-gan.train(images, labels, epochs=1, batch_size=5)
+gan.train(images, epochs=10, batch_size=16)
 
 """
 history = model.fit(x_train, y_train, validation_split=0.25, epochs=1, batch_size=32)

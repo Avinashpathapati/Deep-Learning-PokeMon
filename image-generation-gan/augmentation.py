@@ -20,7 +20,7 @@ def translate(image):
   matrix = np.float32([[1, 0, horizontal_shift], [0, 1, vertical_shift]]) 
   return cv.warpAffine(image, matrix, (columns, rows), borderValue = (255, 255, 255))
 
-def augment(images, labels):
+def augment(images):
   print("augmenting images...")
 
   rotated_images = [rotate(x) for x in images]
@@ -28,6 +28,5 @@ def augment(images, labels):
   
   images.extend(rotated_images)
   images.extend(translated_images)
-  labels = labels * 3
 
-  return images, labels
+  return images
