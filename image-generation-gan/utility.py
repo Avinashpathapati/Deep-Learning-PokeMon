@@ -20,8 +20,7 @@ def load_data(path):
   images = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
-      if (directory == "Mew"):
-        image = read_image(path + "/" + str(directory) + "/" + str(filename))
-        images.append(image)
+      image = read_image(path + "/" + str(directory) + "/" + str(filename))
+      images.append(image)
   
   return images

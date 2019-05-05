@@ -8,14 +8,15 @@ from random import shuffle
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 
-def resize(images):
+
+def __resize(images):
   images = [cv.resize(x, (64, 64)) for x in images]
   return images
 
 def preprocess(images):
   print("preprocessing data...")
 
-  images = resize(images)
+  images = __resize(images)
   shuffle(images)
   images = np.array(images, dtype=np.uint8)
   images = np.divide(images, 255)
