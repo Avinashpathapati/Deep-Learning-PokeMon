@@ -14,6 +14,9 @@ def plot(image, name):
 def read_image(path):
   return cv.imread(path, cv.IMREAD_COLOR)
 
+def save(image, path, name):
+  cv.imwrite(os.path.join(path, name), image)
+
 def load_data(path):
   print("loading images...")
   
