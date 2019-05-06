@@ -20,7 +20,7 @@ if int(arguments["number"]) <= 0:
 
 # Load the model and generate the images.
 print("generating images...")
-generator = load_model("./generator.h5")
+generator = load_model("generator.h5")
 noise = np.random.normal(0, 1, (arguments["number"], 100))
 images = generator.predict(noise)
 
