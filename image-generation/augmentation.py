@@ -7,24 +7,26 @@ import numpy as np
 import cv2 as cv
 
 
-def __rotate(image):
-  (rows, columns) = image.shape[:2]
+def __rotate(images):
+  (rows, columns) = images[0].shape[:2]
   rotation_degree = random.choice([-10, -5, 5, 10])
-  matrix = cv.getRotationMatrix2D((columns / 2, rows / 2), rotation_degree, 1) 
-  return cv.warpAffine(image, matrix, (columns, rows), borderValue = (255, 255, 255)) 
+  matrix = cv.getRotationMatrix2D((columns / 2, rows / 2), rotation_degree, 1)
+  images = [cv.warpAffine(x, matrix, (columns, rows), borderValue = (255, 255, 255)) for x in images]
+  return images
 
-def __translate(image):
-  (rows, columns) = image.shape[:2] 
-  horizontal_shift = random.choice([-4, -3, -2, -1, 0, 1, 2, 3, 4])
-  vertical_shift = random.choice([-4, -3, -2, -1, 0, 1, 2, 3, 4])
+def __translate(images):
+  (rows, columns) = images[0].shape[:2] 
+  horizontal_shift = random.choice([-2, -1, 0, 1, 2])
+  vertical_shift = random.choice([-2, -1, 0, 1, 2])
   matrix = np.float32([[1, 0, horizontal_shift], [0, 1, vertical_shift]]) 
-  return cv.warpAffine(image, matrix, (columns, rows), borderValue = (255, 255, 255))
+  images = [cv.warpAffine(x, matrix, (columns, rows), borderValue = (255, 255, 255)) for x in images]
+  return images
 
 def augment(images):
   print("augmenting images...")
 
-  rotated_images = [__rotate(x) for x in images]
-  translated_images = [__translate(x) for x in images]
+  rotated_images = __rotate(images)
+  translated_images = __translate(images)
   
   images.extend(rotated_images)
   images.extend(translated_images)

@@ -4,7 +4,6 @@
 
 import cv2 as cv
 import numpy as np
-from random import shuffle
 
 
 def __resize(images):
@@ -12,11 +11,10 @@ def __resize(images):
   return images
 
 def preprocess(images):
-  print("preprocessing data...")
+  print("preprocessing images...")
 
   images = __resize(images)
-  shuffle(images)
-  images = np.array(images, dtype=np.uint8)
+  images = np.array(images)
   images = np.divide(images, 255)
   
   return images

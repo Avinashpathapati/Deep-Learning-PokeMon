@@ -171,9 +171,9 @@ class GAN():
       discriminator_history.append(np.average(discriminator_statistics, axis=0))
       adversarial_history.append(np.average(adversarial_statistics, axis=0))
 
-      (print("Epoch %d/%d [Discriminator]: [loss: %f, acc.: %.2f%%] [Adversarial loss: %f, acc: %.2f%%]"
+      print("Epoch %d/%d [Discriminator]: [loss: %f, acc.: %.2f%%] [Adversarial loss: %f, acc: %.2f%%]"
              % (epoch, epochs, discriminator_history[-1][0], 100*discriminator_history[-1][1],
-             adversarial_history[-1][0], 100*adversarial_history[-1][1])))
+             adversarial_history[-1][0], 100*adversarial_history[-1][1]))
 
     if not os.path.isdir("./output"):
       os.mkdir("./output")

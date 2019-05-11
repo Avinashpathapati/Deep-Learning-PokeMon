@@ -4,6 +4,7 @@
 
 import os
 import cv2 as cv
+import random
 
 
 def plot(image, name):
@@ -27,3 +28,7 @@ def load_data(path):
       images.append(image)
   
   return images
+
+def randomize(images):
+  print("shuffling images...")
+  random.Random(1).shuffle(images)
