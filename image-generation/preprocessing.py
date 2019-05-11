@@ -5,8 +5,6 @@
 import cv2 as cv
 import numpy as np
 from random import shuffle
-from sklearn.preprocessing import LabelBinarizer
-from sklearn.model_selection import train_test_split
 
 
 def __resize(images):
