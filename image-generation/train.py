@@ -5,13 +5,13 @@
 import numpy as np
 import random
 
-from utility import load_data, randomize
+from utility import load_images, randomize
 from preprocessing import preprocess
 from augmentation import augment
 from gan import GAN
 
 
-images = load_data("./pokemon-generation-one")
+images = load_images("./pokemon-generation-one")
 
 images = augment(images)
 randomize(images)
