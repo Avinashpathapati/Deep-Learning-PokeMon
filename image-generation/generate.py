@@ -8,6 +8,6 @@ from utility import save, parse_input_arguments, generate_images
 
 
 arguments = parse_input_arguments()
-generator = load_model("generator.h5")
-images = generate_images(generator, arguments["number"])
+generator = load_model("/home/anpenta/Desktop/output/generator.h5")
+images = generate_images(generator, int(arguments["number"]))
 save(images)

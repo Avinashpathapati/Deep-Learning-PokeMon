@@ -7,6 +7,7 @@ import cv2 as cv
 import random
 import argparse
 import numpy as np
+from scipy.misc import imsave
 
 
 def plot(image, name):
@@ -55,5 +56,8 @@ def save(images):
   
   if not os.path.isdir("./output"):
     os.mkdir("./output")
+
+  image_name = 0  
   for image in images:
-    cv.imwrite(os.path.join("./output", str(images.index(image)) + ".jpg"), image)
+    imsave(os.path.join("./output", str(image_name) + ".jpg"), image)
+    image_name += 1

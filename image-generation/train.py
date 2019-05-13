@@ -11,14 +11,14 @@ from augmentation import augment
 from gan import GAN
 
 
-images = load_images("./pokemon-generation-one")
+images = load_images("./pokemon-data")
 
-images = augment(images)
+#images = augment(images)
 randomize(images)
 images = preprocess(images)
 
 gan = GAN(images.shape[1], images.shape[2], images.shape[3])
 gan.summary()
 
-gan.train(images, epochs=2, batch_size=32)
+gan.train(images, epochs=200, batch_size=32)
 gan.save()
