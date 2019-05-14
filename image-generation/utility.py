@@ -24,8 +24,9 @@ def load_images(path):
   images = []
   for directory in os.listdir(path + "/"):
     for filename in os.listdir(path + "/" + str(directory) + "/"):
-      image = read_image(path + "/" + str(directory) + "/" + str(filename))
-      images.append(image)
+      if directory == "Mewtwo":
+        image = read_image(path + "/" + str(directory) + "/" + str(filename))
+        images.append(image)
   
   return images
 

@@ -150,20 +150,25 @@ class GAN():
       discriminator_statistics = []
       adversarial_statistics = []
       for _ in range(batches):
-        # Select a mini batch of images randomly.
-        indices = np.random.randint(0, images.shape[0], batch_size)
+        # Select a mini batch of real images randomly, with size half of batch size. 
+        indices = np.random.randint(0, images.shape[0], int(batch_size / 2))
         real_images = images[indices]
-        real_labels = np.ones((batch_size, 1))
+        real_labels = np.ones((int(batch_size / 2), 1))
       
-        # Generate fake images from noise.
-        noise = np.random.normal(0, 1, (batch_size, 100))
+        # Generate fake images from noise, with size half of batch size.
+        noise = np.random.normal(0, 1, (int(batch_size / 2), 100))
         fake_images = self.generator.predict(noise)
-        fake_labels = np.zeros((batch_size, 1))
+        fake_labels = np.zeros((int(batch_size / 2), 1))
 
         # Train the discriminator.
         discriminator_statistics_real = self.discriminator.train_on_batch(real_images, real_labels)
         discriminator_statistics_fake = self.discriminator.train_on_batch(fake_images, fake_labels)
         discriminator_statistics.append(0.5 * np.add(discriminator_statistics_real, discriminator_statistics_fake))
+
+        # Sample data points from the noise distribution, with size of batch size and create
+        # real labels for them.
+        noise = np.random.normal(0, 1, (batch_size, 100))
+        real_labels = np.ones((batch_size, 1))
 
         # Train the generator.
         adversarial_statistics.append(self.adversarial.train_on_batch(noise, real_labels))
