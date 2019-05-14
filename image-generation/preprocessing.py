@@ -7,7 +7,7 @@ import numpy as np
 
 
 def __resize(images):
-  images = [cv.resize(x, (64, 64)) for x in images]
+  images = [cv.resize(x, (256, 256)) for x in images]
   return images
 
 def preprocess(images):

@@ -13,7 +13,7 @@ from gan import GAN
 
 images = load_images("./pokemon-data")
 
-#images = augment(images)
+images = augment(images)
 randomize(images)
 images = preprocess(images)
 
