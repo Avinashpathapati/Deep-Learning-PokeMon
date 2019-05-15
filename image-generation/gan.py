@@ -7,6 +7,7 @@ from keras.models import Model
 from keras.layers.convolutional import Conv2D
 from keras.layers.convolutional import MaxPooling2D
 from keras.layers.core import Activation
+from keras.layers import LeakyReLU
 from keras.constraints import maxnorm
 from keras.layers.core import Flatten
 from keras.layers.core import Dropout
@@ -51,31 +52,34 @@ class GAN():
     # Build the model
     model = Sequential()
   
-    model.add(Conv2D(64, (5, 5), input_shape=input_shape, padding="same"))
+    model.add(Conv2D(8, kernel_size=3, strides=2, input_shape=input_shape, padding="same"))
     model.add(BatchNormalization())
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(LeakyReLU())
   
-    model.add(Conv2D(128, (5, 5), padding="same"))
+    model.add(Conv2D(16, kernel_size=3, strides=2, padding="same"))
     model.add(BatchNormalization())
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(LeakyReLU())
 
-    model.add(Conv2D(256, (5, 5), padding="same"))
+    model.add(Conv2D(32, kernel_size=3, strides=2, padding="same"))
     model.add(BatchNormalization())
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(LeakyReLU())
   
-    model.add(Conv2D(512, (5, 5), padding="same"))
+    model.add(Conv2D(64, kernel_size=3, strides=2, padding="same"))
     model.add(BatchNormalization())
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(LeakyReLU())
+
+    model.add(Conv2D(128, kernel_size=3, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU())
+
+    model.add(Conv2D(256, kernel_size=3, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU())
 
     model.add(Flatten())
-    model.add(Dense(1024))
+    model.add(Dense(128))
     model.add(BatchNormalization())
-    model.add(Activation("relu"))
-    model.add(Dropout(0.5))
+    model.add(LeakyReLU())
 
     model.add(Dense(1, activation="sigmoid"))
 
@@ -89,38 +93,40 @@ class GAN():
     # Build the model.
     model = Sequential()
 
-    model.add(Dense(height * width * 512, input_dim=100))
+    model.add(Dense(height * width * 256, input_dim=100))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-    model.add(Reshape((height, width, 512)))
+    model.add(Dropout(0.2))
 
+    model.add(Reshape((height, width, 256)))
     model.add(UpSampling2D())
-    model.add(Conv2D(256, (5, 5), padding="same"))
+    
+    model.add(Conv2D(128, kernel_size=3, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-
     model.add(UpSampling2D())
-    model.add(Conv2D(128, (5, 5), padding="same"))
+    
+    model.add(Conv2D(64, kernel_size=3, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-
     model.add(UpSampling2D())
-    model.add(Conv2D(64, (5, 5), padding="same"))
+    
+    model.add(Conv2D(32, kernel_size=3, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-
     model.add(UpSampling2D())
-    model.add(Conv2D(32, (5, 5), padding="same"))
+    
+    model.add(Conv2D(16, kernel_size=3, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-
     model.add(UpSampling2D())
-    model.add(Conv2D(16, (5, 5), padding="same"))
+
+    model.add(Conv2D(8, kernel_size=3, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
-    model.add(Conv2D(self.depth, (5, 5), padding="same"))
-    model.add(Activation("sigmoid"))
+    model.add(Conv2D(self.depth, kernel_size=3, padding="same"))
+    model.add(Activation("tanh"))
 
     return model
 

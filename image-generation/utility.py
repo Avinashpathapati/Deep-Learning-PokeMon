@@ -7,7 +7,7 @@ import cv2 as cv
 import random
 import argparse
 import numpy as np
-#from scipy.misc import imsave
+from scipy.misc import imsave
 
 
 def plot(image, name):
