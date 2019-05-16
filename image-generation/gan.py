@@ -46,7 +46,7 @@ class GAN():
     fake_image = self.generator(noise)
     label = self.discriminator(fake_image)
     self.adversarial = Model(noise, label)
-    self.adversarial.compile(loss="binary_crossentropy", optimizer=optimizer, metrics=["accuracy"])
+    self.adversarial.compile(loss="binary_crossentropy", optimizer=optimizer)
 
   def __build_discriminator(self):
     input_shape = (self.height, self.width, self.depth)
@@ -54,15 +54,15 @@ class GAN():
     # Build the model
     model = Sequential()
   
-    model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+    model.add(Conv2D(16, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
-    model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
+    model.add(Conv2D(32, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
-  
-    model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
+
+    model.add(Conv2D(64, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
@@ -73,8 +73,8 @@ class GAN():
 
   def __build_generator(self):
     # Determine initial dimensions.
-    height = int(self.height / 8)
-    width = int(self.width / 8)
+    height = int(self.height / 64)
+    width = int(self.width / 64)
 
     # Build the model.
     model = Sequential()
@@ -82,11 +82,23 @@ class GAN():
     model.add(Dense(height * width * 256, input_dim=100))
     model.add(Reshape((height, width, 256)))
     
+    model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+
     model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
     
     model.add(Conv2DTranspose(64, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+
+    model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+
+    model.add(Conv2DTranspose(16, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
@@ -121,11 +133,13 @@ class GAN():
       os.mkdir(str(output_path))
 
     batches = int(images.shape[0] / batch_size)
-    discriminator_history = []
-    adversarial_history = []
+    discriminator_history_real = []
+    discriminator_history_fake = []
+    generator_history = []
     for epoch in range(1, epochs + 1):
-      discriminator_statistics = []
-      adversarial_statistics = []
+      discriminator_statistics_real = []
+      discriminator_statistics_fake = []
+      generator_statistics = []
       for _ in range(batches):
         # Select a mini batch of real images randomly, with size half of batch size. 
         indices = np.random.randint(0, images.shape[0], int(batch_size / 2))
@@ -138,9 +152,8 @@ class GAN():
         fake_labels = np.zeros((int(batch_size / 2), 1))
 
         # Train the discriminator.
-        discriminator_statistics_real = self.discriminator.train_on_batch(real_images, real_labels)
-        discriminator_statistics_fake = self.discriminator.train_on_batch(fake_images, fake_labels)
-        discriminator_statistics.append(0.5 * np.add(discriminator_statistics_real, discriminator_statistics_fake))
+        discriminator_statistics_real.append(self.discriminator.train_on_batch(real_images, real_labels))
+        discriminator_statistics_fake.append(self.discriminator.train_on_batch(fake_images, fake_labels))
 
         # Sample data points from the noise distribution, with size of batch size and create
         # real labels for them.
@@ -148,14 +161,20 @@ class GAN():
         real_labels = np.ones((batch_size, 1))
 
         # Train the generator.
-        adversarial_statistics.append(self.adversarial.train_on_batch(noise, real_labels))
+        generator_statistics.append(self.adversarial.train_on_batch(noise, real_labels))
 
-      discriminator_history.append(np.average(discriminator_statistics, axis=0))
-      adversarial_history.append(np.average(adversarial_statistics, axis=0))
+      discriminator_history_real.append(np.average(discriminator_statistics_real, axis=0))
+      discriminator_history_fake.append(np.average(discriminator_statistics_fake, axis=0))
+      generator_history.append(np.average(generator_statistics, axis=0))
 
-      print("Epoch %d/%d [Discriminator]: [loss: %f, acc.: %.2f%%] [Adversarial loss: %f, acc: %.2f%%]"
-             % (epoch, epochs, discriminator_history[-1][0], 100 * discriminator_history[-1][1],
-             adversarial_history[-1][0], 100 * adversarial_history[-1][1]))
+      # Print the statistics for the current epoch.
+      print()
+      print("Epoch %d/%d" % (epoch, epochs))
+      print("--------------------")
+      print("Discriminator: [loss real: %f, acc real: %.2f%%, loss fake: %f, acc fake: %.2f%%]"
+             % (discriminator_history_real[-1][0], 100 * discriminator_history_real[-1][1],
+             discriminator_history_fake[-1][0], 100 * discriminator_history_fake[-1][1]))
+      print("Generator: [loss: %f]" % generator_history[-1])
 
       if epoch % save_interval == 0:
         # Save the generator and a sample of fake images.
@@ -164,20 +183,29 @@ class GAN():
         save(images, output_path + "/epoch-" + str(epoch))
 
         # Save the training history up to the current epoch.
-        plt.plot([x[1] for x in discriminator_history])
-        plt.plot([x[0] for x in discriminator_history])
-        plt.title("Discriminator training")
+        plt.plot([x[1] for x in discriminator_history_real])
+        plt.plot([x[1] for x in discriminator_history_fake])
+        plt.title("Discriminator training accuracy")
         plt.xlabel("Epoch")
-        plt.legend(["Accuracy", "Loss"], loc="upper left")
-        plt.savefig(output_path + "/epoch-" + str(epoch) + "/discriminator-training")
+        plt.ylabel("Accuracy")
+        plt.legend(["Real", "Fake"], loc="upper left")
+        plt.savefig(output_path + "/epoch-" + str(epoch) + "/discriminator-training-accuracy")
         plt.close()
 
-        plt.plot([x[1] for x in adversarial_history])
-        plt.plot([x[0] for x in adversarial_history])
-        plt.title("Adversarial training")
+        plt.plot([x[0] for x in discriminator_history_real])
+        plt.plot([x[0] for x in discriminator_history_fake])
+        plt.title("Discriminator training loss")
         plt.xlabel("Epoch")
-        plt.legend(["Accuracy", "Loss"], loc="upper left")
-        plt.savefig(output_path + "/epoch-" + str(epoch) + "/adversarial-training")
+        plt.ylabel("Loss")
+        plt.legend(["Real", "Fake"], loc="upper left")
+        plt.savefig(output_path + "/epoch-" + str(epoch) + "/discriminator-training-loss")
+        plt.close()
+
+        plt.plot([x for x in generator_history])
+        plt.title("Generator training loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.savefig(output_path + "/epoch-" + str(epoch) + "/generator-training-loss")
         plt.close()
 
   def save_generator(self, path):
