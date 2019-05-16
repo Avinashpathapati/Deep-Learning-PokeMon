@@ -8,6 +8,6 @@ from utility import save, parse_input_arguments, generate_images
 
 
 arguments = parse_input_arguments()
-generator = load_model("./output/generator.h5")
+generator = load_model("./output/epoch-140/generator.h5")
 images = generate_images(generator, int(arguments["number"]))
-save(images)
+save(images, "./output")
