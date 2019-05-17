@@ -11,7 +11,11 @@ from gan import GAN
 from keras.preprocessing.image import ImageDataGenerator
 
 
-images = load_images("./pokemon-data/Pikachu")
+pikachu_images = load_images("./pokemon-data/Pikachu")
+charmander_images = load_images("./pokemon-data/Charmander")
+bulbasaur_images = load_images("./pokemon-data/Bulbasaur")
+
+images = pikachu_images + charmander_images + bulbasaur_images
 
 randomize(images)
 images = preprocess(images)
@@ -19,6 +23,6 @@ images = preprocess(images)
 gan = GAN(images.shape[1], images.shape[2], images.shape[3])
 gan.summary()
 
-data_generator = ImageDataGenerator(zoom_range=0.1, width_shift_range=0.1, height_shift_range=0.1, rotation_range=5)
+data_generator = ImageDataGenerator(zoom_range=0.2, width_shift_range=0.2, height_shift_range=0.2, rotation_range=10)
 
 gan.train(images, epochs=1000, batch_size=32, output_path="./output", save_interval=20, data_generator=data_generator)

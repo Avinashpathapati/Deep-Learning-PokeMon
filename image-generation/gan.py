@@ -54,15 +54,7 @@ class GAN():
     # Build the model
     model = Sequential()
   
-    model.add(Conv2D(4, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-
-    model.add(Conv2D(8, kernel_size=5, strides=2, padding="same"))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-
-    model.add(Conv2D(16, kernel_size=5, strides=2, padding="same"))
+    model.add(Conv2D(16, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
@@ -74,6 +66,10 @@ class GAN():
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
+    model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.2))
+
     model.add(Flatten())
     model.add(Dense(1, activation="sigmoid"))
 
@@ -81,22 +77,14 @@ class GAN():
 
   def __build_generator(self):
     # Determine initial dimensions.
-    height = int(self.height / 64)
-    width = int(self.width / 64)
+    height = int(self.height / self.height) * 8
+    width = int(self.width / self.width) * 8
 
     # Build the model.
     model = Sequential()
 
-    model.add(Dense(height * width * 512, input_dim=100))
-    model.add(Reshape((height, width, 512)))
-    
-    model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
-    model.add(BatchNormalization())
-    model.add(Activation("relu"))
-
-    model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
-    model.add(BatchNormalization())
-    model.add(Activation("relu"))
+    model.add(Dense(height * width * 128, input_dim=100))
+    model.add(Reshape((height, width, 128)))
     
     model.add(Conv2DTranspose(64, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
@@ -105,7 +93,7 @@ class GAN():
     model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
-
+    
     model.add(Conv2DTranspose(16, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
