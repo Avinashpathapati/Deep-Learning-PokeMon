@@ -177,12 +177,14 @@ class GAN():
         if not os.path.isdir(str(output_path)):
           os.mkdir(str(output_path))
 
-        # Save the generator and a sample of fake images.
-        self.save_generator(output_path + "/epoch-" + str(epoch))
+        # Save the generator, the discriminator and a sample of fake images.
+        self.save_models(output_path + "/epoch-" + str(epoch))
         images = generate_images(self.generator, 10)
         save(images, output_path + "/epoch-" + str(epoch))
 
         # Save the training history up to the current epoch.
+        print("saving training history...")
+
         plt.plot([x[1] for x in discriminator_history_real])
         plt.plot([x[1] for x in discriminator_history_fake])
         plt.title("Discriminator training accuracy")
@@ -208,8 +210,10 @@ class GAN():
         plt.savefig(output_path + "/epoch-" + str(epoch) + "/generator-training-loss")
         plt.close()
 
-  def save_generator(self, path):
+  def save_models(self, path):
+    print("saving models...")
     if not os.path.isdir(str(path)):
       os.mkdir(str(path))
 
     self.generator.save(str(path) + "/generator.h5")
+    self.discriminator.save(str(path) + "/discriminator.h5")

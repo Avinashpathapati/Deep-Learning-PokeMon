@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --time=00-00:10:00
+#SBATCH --time=02-00:00:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --job-name=pikachu
-#SBATCH --mem=8000
+#SBATCH --job-name=pokemon
+#SBATCH --mem=16000
 #SBATCH --mail-type=BEGIN,END
 #SBATCH --mail-user=a.pentaliotis@student.rug.nl
 
