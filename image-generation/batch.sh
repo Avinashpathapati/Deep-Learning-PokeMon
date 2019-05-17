@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/bash
 #SBATCH --time=00-00:10:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1

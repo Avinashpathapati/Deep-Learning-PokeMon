@@ -7,18 +7,18 @@ import random
 
 from utility import load_images, randomize
 from preprocessing import preprocess
-from augmentation import augment
 from gan import GAN
-from keras.images import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator
 
 
 images = load_images("./pokemon-data/Pikachu")
 
-images = augment(images)
 randomize(images)
 images = preprocess(images)
 
 gan = GAN(images.shape[1], images.shape[2], images.shape[3])
 gan.summary()
 
-gan.train(images, epochs=1000, batch_size=32, output_path="./output", save_interval=20, training_generator)
+data_generator = ImageDataGenerator(zoom_range=0.1, width_shift_range=0.1, height_shift_range=0.1, rotation_range=5)
+
+gan.train(images, epochs=1000, batch_size=32, output_path="./output", save_interval=20, data_generator=data_generator)

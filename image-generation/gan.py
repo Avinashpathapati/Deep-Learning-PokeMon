@@ -54,7 +54,15 @@ class GAN():
     # Build the model
     model = Sequential()
   
-    model.add(Conv2D(16, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+    model.add(Conv2D(4, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.2))
+
+    model.add(Conv2D(8, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.2))
+
+    model.add(Conv2D(16, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
@@ -73,14 +81,14 @@ class GAN():
 
   def __build_generator(self):
     # Determine initial dimensions.
-    height = int(self.height / 32)
-    width = int(self.width / 32)
+    height = int(self.height / 64)
+    width = int(self.width / 64)
 
     # Build the model.
     model = Sequential()
 
-    model.add(Dense(height * width * 256, input_dim=100))
-    model.add(Reshape((height, width, 256)))
+    model.add(Dense(height * width * 512, input_dim=100))
+    model.add(Reshape((height, width, 512)))
     
     model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
@@ -95,6 +103,10 @@ class GAN():
     model.add(Activation("relu"))
 
     model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+
+    model.add(Conv2DTranspose(16, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
@@ -118,17 +130,16 @@ class GAN():
     print("--------------------")
     self.generator.summary()
 
-  def train(self, images, epochs, batch_size, output_path, save_interval):
+  def train(self, images, epochs, batch_size, output_path, save_interval, data_generator):
     if batch_size > images.shape[0]:
       raise ValueError("batch size should be less than size of data")
 
     if not isinstance(save_interval, int):
       raise ValueError("save interval should be an integer")
 
-    if not os.path.isdir(str(output_path)):
-      os.mkdir(str(output_path))
-
     batches = int(images.shape[0] / batch_size)
+    training_generator = data_generator.flow(images, batch_size=int(batch_size / 2))
+    
     discriminator_history_real = []
     discriminator_history_fake = []
     generator_history = []
@@ -137,11 +148,13 @@ class GAN():
       discriminator_statistics_fake = []
       generator_statistics = []
       for _ in range(batches):
-        # Select a mini batch of real images randomly, with size half of batch size. 
-        indices = np.random.randint(0, images.shape[0], int(batch_size / 2))
-        real_images = images[indices]
+        # Select a mini batch of real images randomly, with size half of batch size. Account for the
+        # case where the size of images is not divisible by batch size.
+        real_images = training_generator.next()
+        if real_images.shape[0] != int(batch_size / 2):
+          real_images = training_generator.next()
         real_labels = np.ones((int(batch_size / 2), 1))
-      
+
         # Generate fake images from noise, with size half of batch size.
         noise = np.random.normal(0, 1, (int(batch_size / 2), 100))
         fake_images = self.generator.predict(noise)
@@ -173,6 +186,9 @@ class GAN():
       print("Generator: [loss: %f]" % generator_history[-1])
 
       if epoch % save_interval == 0:
+        if not os.path.isdir(str(output_path)):
+          os.mkdir(str(output_path))
+
         # Save the generator and a sample of fake images.
         self.save_generator(output_path + "/epoch-" + str(epoch))
         images = generate_images(self.generator, 10)
