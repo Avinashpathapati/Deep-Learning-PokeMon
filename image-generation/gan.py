@@ -73,8 +73,8 @@ class GAN():
 
   def __build_generator(self):
     # Determine initial dimensions.
-    height = int(self.height / 64)
-    width = int(self.width / 64)
+    height = int(self.height / 32)
+    width = int(self.width / 32)
 
     # Build the model.
     model = Sequential()
@@ -95,10 +95,6 @@ class GAN():
     model.add(Activation("relu"))
 
     model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
-    model.add(BatchNormalization())
-    model.add(Activation("relu"))
-
-    model.add(Conv2DTranspose(16, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
