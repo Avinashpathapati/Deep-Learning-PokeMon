@@ -11,10 +11,8 @@ from gan import GAN
 from keras.preprocessing.image import ImageDataGenerator
 
 
-images = (load_images("./pokemon-data/Charmander") + load_images("./pokemon-data/Charizard") + load_images("./pokemon-data/Charmeleon")
-          + load_images("./pokemon-data/Flareon") + load_images("./pokemon-data/Growlithe") + load_images("./pokemon-data/Magmar")
-          + load_images("./pokemon-data/Moltres") + load_images("./pokemon-data/Ponyta") + load_images("./pokemon-data/Rapidash")
-          + load_images("./pokemon-data/Vulpix"))
+fire = ["Charmander", "Charizard", "Charmeleon", "Flareon", "Growlithe", "Magmar", "Moltres", "Ninetales", "Ponyta", "Rapidash", "Vulpix"]
+images = load_images("./pokemon-data")
 
 randomize(images)
 images = preprocess(images)

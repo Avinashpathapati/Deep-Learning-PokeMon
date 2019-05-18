@@ -7,10 +7,10 @@ import cv2 as cv
 import random
 import argparse
 import numpy as np
-from scipy.misc import imsave
 
 
 def plot(image, name):
+  cv.namedWindow(name, cv.WINDOW_NORMAL)
   cv.imshow(name, image)
   cv.waitKey(0)
   cv.destroyWindow(name)
@@ -19,13 +19,15 @@ def read_image(path):
   image = cv.imread(path, cv.IMREAD_COLOR)
   return image
 
-def load_images(path):
+def load_images(path, pokemon=None):
   print("loading images...")
 
   images = []
-  for filename in os.listdir(path + "/"):
-    image = read_image(path + "/" + str(filename))
-    images.append(image)
+  for directory in os.listdir(path + "/"):
+    for filename in os.listdir(path + "/" + directory + "/"):
+      if pokemon is not None and directory in pokemon or pokemon is None:
+        image = read_image(path + "/" + directory + "/" + filename)
+        images.append(image)
   
   return images
 
@@ -44,15 +46,8 @@ def parse_input_arguments():
   return arguments
 
 def normalize(images, pixel_range):
-  if pixel_range == (-1, 1):
-    # Normalize the pixel values in the images to [-1, 1]
-    images = 2.0 * (images - np.min(images)) / np.ptp(images) - 1
-  elif pixel_range == (0, 1):
-    # Normalize the pixel values in the images to [0, 1]
-    images = (images - np.min(images)) / np.ptp(images)
-  else:
-    raise ValueError("invalid pixel range")
-  
+  images = (images - np.min(images)) / np.ptp(images) * (pixel_range[1] - pixel_range[0]) + pixel_range[0]
+
   return images
 
 def generate_images(generator, number):
@@ -60,17 +55,17 @@ def generate_images(generator, number):
 
   noise = np.random.normal(0, 1, (number, 100))
   images = generator.predict(noise)
-  images = normalize(images, pixel_range=(0, 1))
+  images = normalize(images, pixel_range=(0, 255))
 
   return images
 
 def save(images, path):
-  print("saving generated images to " + str(path) + "...")
+  print("saving images to " + str(path) + "...")
   
   if not os.path.isdir(str(path)):
     os.mkdir(str(path))
 
   image_name = 0  
   for image in images:
-    imsave(os.path.join(str(path), str(image_name) + ".jpg"), image)
+    cv.imwrite(os.path.join(str(path), str(image_name) + ".jpg"), image)
     image_name += 1
