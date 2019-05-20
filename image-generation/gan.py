@@ -119,9 +119,23 @@ class GAN():
     self.generator.summary()
 
   def train(self, images, epochs, batch_size, output_path, save_interval, data_generator):
+    # Handle any value errors on the input arguments.
     if batch_size > images.shape[0]:
       raise ValueError("batch size should be less than size of data")
-
+    if batch_size <= 1:
+      raise ValueError("batch size should be greater than 1")
+    if batch_size % 2 == 1:
+      raise ValueError("batch size should be an even number")
+    if not isinstance(batch_size, int):
+      raise ValueError("batch size should be an integer")
+    
+    if epochs <= 0:
+      raise ValueError("epochs should be greater than 0")
+    if not isinstance(epochs, int):
+      raise ValueError("epochs should be an integer")
+    
+    if save_interval <= 0:
+      raise ValueError("save interval should be greater than 0")
     if not isinstance(save_interval, int):
       raise ValueError("save interval should be an integer")
 
