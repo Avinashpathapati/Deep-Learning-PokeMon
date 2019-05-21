@@ -15,9 +15,11 @@ def plot(image, name):
   cv.waitKey(0)
   cv.destroyWindow(name)
 
+
 def read_image(path):
   image = cv.imread(path, cv.IMREAD_COLOR)
   return image
+
 
 def load_images(path, pokemon=None):
   print("loading images...")
@@ -31,9 +33,11 @@ def load_images(path, pokemon=None):
   
   return images
 
+
 def randomize(images):
   print("shuffling images...")
   random.Random(1).shuffle(images)
+
 
 def parse_input_arguments():
   parser = argparse.ArgumentParser()
@@ -45,10 +49,12 @@ def parse_input_arguments():
 
   return arguments
 
+
 def normalize(images, pixel_range):
   images = (images - np.min(images)) / np.ptp(images) * (pixel_range[1] - pixel_range[0]) + pixel_range[0]
 
   return images
+
 
 def generate_images(generator, number):
   print("generating images...")
@@ -58,6 +64,7 @@ def generate_images(generator, number):
   images = normalize(images, pixel_range=(0, 255))
 
   return images
+
 
 def save(images, path):
   print("saving images to " + str(path) + "...")

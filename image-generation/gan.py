@@ -26,6 +26,7 @@ from utility import generate_images, save
 
 
 class GAN():
+
   def __init__(self, height, width, depth):
     self.height = height
     self.width = width

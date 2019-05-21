@@ -11,6 +11,7 @@ def __resize(images, dimensions):
   images = [cv.resize(x, dimensions, interpolation=cv.INTER_AREA) for x in images]
   return images
 
+
 def preprocess(images):
   print("preprocessing images...")
 
