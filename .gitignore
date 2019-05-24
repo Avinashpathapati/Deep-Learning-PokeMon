@@ -2,7 +2,7 @@ __pycache__/*
 *.pyc
 *.swp
 .idea/
-pokemon-data.zip
+*.zip
 output
 mewtwo*
 .vscode
