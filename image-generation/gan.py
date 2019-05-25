@@ -13,7 +13,7 @@ from keras.layers.core import Dense
 from keras.layers import Input
 from keras.layers import BatchNormalization
 from keras.layers.core import Reshape
-from keras.optimizers import SGD
+from keras.optimizers import Adam
 from keras import backend as K
 K.set_image_dim_ordering("tf")
 import numpy as np
@@ -34,7 +34,7 @@ class GAN():
     self.__build()
 
   def __build(self):
-    optimizer = SGD(lr=0.0002, momentum=0.5)
+    optimizer = Adam(lr=0.0002, beta_1=0.5)
 
     # Build the generator and discriminator and compile the discriminator.
     self.generator = self.__build_generator()
