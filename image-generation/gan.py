@@ -13,7 +13,7 @@ from keras.layers.core import Dense
 from keras.layers import Input
 from keras.layers import BatchNormalization
 from keras.layers.core import Reshape
-from keras.optimizers import Adam
+from keras.optimizers import SGD
 from keras import backend as K
 K.set_image_dim_ordering("tf")
 import numpy as np
@@ -34,7 +34,7 @@ class GAN():
     self.__build()
 
   def __build(self):
-    optimizer = Adam(lr=0.0002, beta_1=0.5)
+    optimizer = SGD(lr=0.0002, momentum=0.5)
 
     # Build the generator and discriminator and compile the discriminator.
     self.generator = self.__build_generator()
@@ -55,11 +55,7 @@ class GAN():
     # Build the model
     model = Sequential()
   
-    model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-
-    model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
+    model.add(Conv2D(128, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
@@ -68,6 +64,10 @@ class GAN():
     model.add(LeakyReLU(alpha=0.2))
 
     model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.2))
+
+    model.add(Conv2D(1024, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.2))
 
@@ -84,18 +84,18 @@ class GAN():
     # Build the model.
     model = Sequential()
 
-    model.add(Dense(height * width * 512, input_dim=100))
-    model.add(Reshape((height, width, 512)))
+    model.add(Dense(height * width * 1024, input_dim=100))
+    model.add(Reshape((height, width, 1024)))
     
+    model.add(Conv2DTranspose(512, kernel_size=5, strides=2, padding="same"))
+    model.add(BatchNormalization())
+    model.add(Activation("relu"))
+
     model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
     model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
-    model.add(BatchNormalization())
-    model.add(Activation("relu"))
-
-    model.add(Conv2DTranspose(64, kernel_size=5, strides=2, padding="same"))
     model.add(BatchNormalization())
     model.add(Activation("relu"))
 
