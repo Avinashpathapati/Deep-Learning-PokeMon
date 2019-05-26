@@ -44,8 +44,8 @@ def parse_input_arguments():
   parser.add_argument("-n", "--number", required=True, help="number of images to generate")
   arguments = vars(parser.parse_args())
   
-  if int(arguments["number"]) <= 0:
-    raise ValueError("number of images should be positive")
+  if not arguments["number"].isdigit() or int(arguments["number"]) == 0:
+    raise ValueError("number of images should be a positive integer")
 
   return arguments
 

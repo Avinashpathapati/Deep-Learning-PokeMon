@@ -8,6 +8,6 @@ from utility import save, parse_input_arguments, generate_images
 
 
 arguments = parse_input_arguments()
-generator = load_model("../results/pikachu/epoch-1000/generator.h5")
+generator = load_model("../results-peregrine/adam-cleaned/pikachu-10150/epoch-10150/generator.h5")
 images = generate_images(generator, int(arguments["number"]))
 save(images, "./output")
