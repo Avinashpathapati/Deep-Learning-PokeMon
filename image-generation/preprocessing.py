@@ -8,7 +8,7 @@ import numpy as np
 from utility import normalize
 
 def __resize(images, dimensions):
-  images = [cv.resize(x, dimensions, interpolation=cv.INTER_AREA) for x in images]
+  images = [cv.resize(x, dimensions, interpolation=cv.INTER_CUBIC) for x in images]
   return images
 
 
