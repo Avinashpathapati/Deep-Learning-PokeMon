@@ -26,10 +26,11 @@ def load_images(path, pokemon=None):
 
   images = []
   for directory in os.listdir(path + "/"):
-    for filename in os.listdir(path + "/" + directory + "/"):
-      if pokemon is not None and directory in pokemon or pokemon is None:
-        image = read_image(path + "/" + directory + "/" + filename)
-        images.append(image)
+    if "store" not in directory.lower():
+      for filename in os.listdir(path + "/" + directory + "/"):
+        if pokemon is not None and directory in pokemon or pokemon is None:
+          image = read_image(path + "/" + directory + "/" + filename)
+          images.append(image)
   
   return images
 
