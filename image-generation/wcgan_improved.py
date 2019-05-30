@@ -63,7 +63,11 @@ class GAN():
         self.depth = depth
     
     def merge_function(self, inputs,inputs_1):
+        print('inside')
         weights = K.random_uniform((BATCH_SIZE, 1, 1, 1))
+        a = (weights * inputs) + ((1 - weights) * inputs_1)
+        print(a.shape)
+        print('--------')
         return (weights * inputs) + ((1 - weights) * inputs_1)
 
     def wasserstein_loss(self, y_true, y_pred):
@@ -161,6 +165,7 @@ class GAN():
         Note that the improved WGAN paper suggests that BatchNormalization should not be
         used in the discriminator."""
         input_shape = (self.height, self.width, self.depth)
+        print(input_shape)
     
         # Build the model
         model = Sequential()
@@ -257,9 +262,13 @@ class GAN():
         discriminator_output_from_generator = discriminator(generated_samples_for_discriminator)
         discriminator_output_from_real_samples = discriminator(real_samples)
 
+        ep_input = Input(shape=(1,1,1))
+        averaged_samples = Input(shape=images.shape[1:],tensor=ep_input * real_samples + (1-ep_input) * generated_samples_for_discriminator)
+
+        print(K.image_data_format())
         # We also need to generate weighted-averages of real and generated samples,
         # to use for the gradient norm penalty.
-        averaged_samples = self.merge_function(real_samples,generated_samples_for_discriminator)
+        #averaged_samples = self.merge_function(real_samples,generated_samples_for_discriminator)
         # averaged_samples = RandomWeightedAverage()([real_samples[:,:,1],generated_samples_for_discriminator[:,:,0],
         #     real_samples[:,:,2],generated_samples_for_discriminator[:,:,1],
         #     real_samples[:,:,3],generated_samples_for_discriminator[:,:,2]
@@ -270,7 +279,9 @@ class GAN():
         # We then run these samples through the discriminator as well. Note that we never
         # really use the discriminator output for these samples - we're only running them to
         # get the gradient norm for the gradient penalty loss.
-        averaged_samples_ten = Input(tensor=averaged_samples)
+        #averaged_samples_ten = Input(tensor=averaged_samples)
+        print(real_samples.shape)
+        print(averaged_samples.shape)
         averaged_samples_out = discriminator(averaged_samples)
 
         # The gradient penalty loss function requires the input averaged samples to get
@@ -295,10 +306,13 @@ class GAN():
 
         discriminator_model = Model(inputs=[real_samples,
                                             generator_input_for_discriminator,
-                                            averaged_samples],
+                                            ep_input,
+                                            averaged_samples
+                                            ],
                                     outputs=[discriminator_output_from_real_samples,
                                              discriminator_output_from_generator,
-                                             averaged_samples_out])
+                                             averaged_samples_out
+                                             ])
         # We use the Adam paramaters from Gulrajani et al. We use the Wasserstein loss for both
         # the real and generated samples, and the gradient penalty loss for the averaged samples
         discriminator_model.compile(optimizer=Adam(0.0001, beta_1=0.5, beta_2=0.9),
@@ -322,6 +336,7 @@ class GAN():
             minibatches_size = BATCH_SIZE * TRAINING_RATIO
             training_generator = data_generator.flow(images, batch_size=int(minibatches_size))
 
+
             for i in range(int(images.shape[0] // (BATCH_SIZE * TRAINING_RATIO))):
                 print('train ',str(i))
                 discriminator_minibatches = training_generator.next()
@@ -329,10 +344,10 @@ class GAN():
                     image_batch = discriminator_minibatches[j * BATCH_SIZE:
                                                             (j + 1) * BATCH_SIZE]
                     noise = np.random.rand(BATCH_SIZE, 100).astype(np.float32)
-                    print(image_batch.shape)
+                    ep = np.random.uniform(size=(BATCH_SIZE, 1, 1 ,1))
                     print('started training disc ',str(j))
                     discriminator_loss.append(discriminator_model.train_on_batch(
-                        [image_batch, noise],
+                        [image_batch, noise,ep],
                         [positive_y, negative_y, dummy_y]))
                 
                 generator_loss.append(generator_model.train_on_batch(np.random.rand(BATCH_SIZE,
