@@ -1,6 +1,6 @@
-# GAN module
+# DCGAN module
 # Author: Andreas Pentaliotis
-# Module to implement a generative adversarial network.
+# Module to implement a deep convolutional generative adversarial network.
 
 from keras.models import Sequential
 from keras.models import Model
@@ -25,7 +25,7 @@ import os
 from utility import generate_images, save
 
 
-class GAN():
+class DCGAN():
 
   def __init__(self, height, width, depth):
     self.height = height

@@ -7,7 +7,7 @@ import random
 
 from utility import load_images, randomize
 from preprocessing import preprocess
-from gan import GAN
+from dcgan import DCGAN
 from keras.preprocessing.image import ImageDataGenerator
 
 
@@ -19,9 +19,9 @@ images = load_images("./mgan-data")
 randomize(images)
 images = preprocess(images)
   
-gan = GAN(images.shape[1], images.shape[2], images.shape[3])
-gan.summary()
+dcgan = DCGAN(images.shape[1], images.shape[2], images.shape[3])
+dcgan.summary()
 
 data_generator = ImageDataGenerator(zoom_range=0.2, width_shift_range=0.2, height_shift_range=0.2, rotation_range=10)
 
-gan.train(images, epochs=20000, batch_size=32, output_path="./output", save_interval=50, data_generator=data_generator)
+dcgan.train(images, epochs=20000, batch_size=32, output_path="./output", save_interval=50, data_generator=data_generator)
