@@ -30,6 +30,7 @@ from keras.datasets import mnist
 from keras import backend as K
 from functools import partial
 from utility import generate_images, save
+import matplotlib.pyplot as plt
 
 try:
     from PIL import Image
@@ -43,7 +44,7 @@ BATCH_SIZE = 32
 # per generator update. The paper uses 5.
 TRAINING_RATIO = 1
 GRADIENT_PENALTY_WEIGHT = 10  # As per the paper
-SAVE_EPOCH = 10
+SAVE_EPOCH = 50
 
 class RandomWeightedAverage(_Merge):
     """Takes a randomly-weighted average of two tensors. In geometric terms, this
@@ -316,8 +317,10 @@ class GAN():
         positive_y = np.ones((BATCH_SIZE, 1), dtype=np.float32)
         negative_y = -positive_y
         dummy_y = np.zeros((BATCH_SIZE, 1), dtype=np.float32)
+        discriminator_history_real_fake = []
+        generator_history = []
 
-        for epoch in range(5000):
+        for epoch in range(10000):
             print(images.shape[0])
             print("Epoch: ", epoch)
             print("Number of batches: ", int(images.shape[0] // BATCH_SIZE))
@@ -328,26 +331,46 @@ class GAN():
 
 
             for i in range(int(images.shape[0] // (BATCH_SIZE * TRAINING_RATIO))):
-                print('train ',str(i))
                 discriminator_minibatches = training_generator.next()
                 for j in range(TRAINING_RATIO):
                     image_batch = discriminator_minibatches[j * BATCH_SIZE:
                                                             (j + 1) * BATCH_SIZE]
                     noise = np.random.rand(BATCH_SIZE, 100).astype(np.float32)
-                    print('started training disc ',str(j))
+
                     discriminator_loss.append(discriminator_model.train_on_batch(
                         [image_batch, noise],
                         [positive_y, negative_y, dummy_y]))
-                
+
                 generator_loss.append(generator_model.train_on_batch(np.random.rand(BATCH_SIZE,
                                                                                     100),
                                                                      positive_y))
+
+            discriminator_history_real_fake.append(np.average(discriminator_loss, axis=0))
+            generator_history.append(np.average(generator_loss, axis=0))
+
             if epoch % SAVE_EPOCH == 0 and (not epoch == 0):
 
                 generator.save(output_path + "/generator.h5")
                 discriminator.save(output_path + "/discriminator.h5")
                 images_gen = generate_images(generator, 10)
                 save(images_gen, output_path + "/epoch-" + str(epoch))
+                print("saving training history...")
+
+                plt.plot([x[1] for x in discriminator_history_real_fake])
+                plt.plot([x[2] for x in discriminator_history_real_fake])
+                plt.title("Discriminator training loss")
+                plt.xlabel("Epoch")
+                plt.ylabel("Loss")
+                plt.legend(["Real", "Fake"], loc="upper left")
+                plt.savefig(output_path + "/epoch-" + str(epoch) + "/discriminator-training-loss")
+                plt.close()
+
+                plt.plot([x for x in generator_history])
+                plt.title("Generator training loss")
+                plt.xlabel("Epoch")
+                plt.ylabel("Loss")
+                plt.savefig(output_path + "/epoch-" + str(epoch) + "/generator-training-loss")
+                plt.close()
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
             #generate_images(generator, args.output_dir, epoch)
