@@ -23,6 +23,7 @@ from keras.layers import Input, Dense, Reshape, Flatten,Lambda, concatenate
 from keras.layers.merge import _Merge
 from keras.layers.convolutional import Conv2DTranspose,Conv2D
 from keras.layers.normalization import BatchNormalization
+from keras_layer_normalization import LayerNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.core import Activation
 from keras.optimizers import Adam
@@ -127,24 +128,43 @@ class GAN():
          # Build the model.
         model = Sequential()
 
-        model.add(Dense(4 * 4 * 512, input_dim=100))
-        model.add(Reshape((4,4,512)))
-        model.add(BatchNormalization(epsilon=1e-5))
-        model.add(Activation("relu"))
+        # model.add(Dense(4 * 4 * 512, input_dim=100))
+        # model.add(Reshape((4,4,512)))
+        # model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(Activation("relu"))
         
-        model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
-        model.add(BatchNormalization(epsilon=1e-5))
-        model.add(Activation("relu"))
+        # model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
+        # model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(Activation("relu"))
 
-        model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
-        model.add(BatchNormalization(epsilon=1e-5))
-        model.add(Activation("relu"))
+        # model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
+        # model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(Activation("relu"))
 
-        model.add(Conv2DTranspose(64, kernel_size=5, strides=2, padding="same"))
+        # model.add(Conv2DTranspose(64, kernel_size=5, strides=2, padding="same"))
+        # model.add(BatchNormalization())
+        # model.add(Activation("relu"))
+
+        # model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
+        # model.add(BatchNormalization())
+        # model.add(Activation("relu"))
+
+        # model.add(Conv2DTranspose(self.depth, kernel_size=5, strides=2, padding="same"))
+        # model.add(Activation("tanh"))
+
+
+        model.add(Dense(8 * 8 * 1024, input_dim=100))
+        model.add(Reshape((8, 8, 1024)))
+        
+        model.add(Conv2DTranspose(512, kernel_size=5, strides=2, padding="same"))
         model.add(BatchNormalization())
         model.add(Activation("relu"))
 
-        model.add(Conv2DTranspose(32, kernel_size=5, strides=2, padding="same"))
+        model.add(Conv2DTranspose(256, kernel_size=5, strides=2, padding="same"))
+        model.add(BatchNormalization())
+        model.add(Activation("relu"))
+
+        model.add(Conv2DTranspose(128, kernel_size=5, strides=2, padding="same"))
         model.add(BatchNormalization())
         model.add(Activation("relu"))
 
@@ -168,19 +188,19 @@ class GAN():
         model = Sequential()
       
         model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-        model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization(epsilon=1e-5))
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
-        model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization(epsilon=1e-5))
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
-        model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization(epsilon=1e-5))
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
-        model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization(epsilon=1e-5))
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Flatten())
