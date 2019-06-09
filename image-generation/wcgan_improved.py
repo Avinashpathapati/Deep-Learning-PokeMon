@@ -182,31 +182,55 @@ class GAN():
         positive as possible for real inputs.
         Note that the improved WGAN paper suggests that BatchNormalization should not be
         used in the discriminator."""
-        input_shape = (self.height, self.width, self.depth)
+        # input_shape = (self.height, self.width, self.depth)
     
+        # # Build the model
+        # model = Sequential()
+      
+        # model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+        # #model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(LeakyReLU(alpha=0.2))
+
+        # model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
+        # #model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(LeakyReLU(alpha=0.2))
+
+        # model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
+        # #model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(LeakyReLU(alpha=0.2))
+
+        # model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
+        # #model.add(BatchNormalization(epsilon=1e-5))
+        # model.add(LeakyReLU(alpha=0.2))
+
+        # model.add(Flatten())
+        # model.add(Dense(1, kernel_initializer='he_normal'))
+        # return model
+        input_shape = (self.height, self.width, self.depth)
+        
         # Build the model
         model = Sequential()
       
-        model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-        #model.add(BatchNormalization(epsilon=1e-5))
-        model.add(LeakyReLU(alpha=0.2))
-
-        model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization(epsilon=1e-5))
+        model.add(Conv2D(128, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+        #model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization(epsilon=1e-5))
+        #model.add(BatchNormalization())
+        model.add(LeakyReLU(alpha=0.2))
+
+        model.add(Conv2D(1024, kernel_size=5, strides=2, padding="same"))
+        #model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Flatten())
         model.add(Dense(1, kernel_initializer='he_normal'))
-        return model
 
+        return model
 
     def tile_images(self,image_stack):
         """Given a stacked tensor of images, reshapes them into a horizontal tiling for
