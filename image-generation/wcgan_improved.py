@@ -23,7 +23,6 @@ from keras.layers import Input, Dense, Reshape, Flatten,Lambda, concatenate
 from keras.layers.merge import _Merge
 from keras.layers.convolutional import Conv2DTranspose,Conv2D
 from keras.layers.normalization import BatchNormalization
-from keras_layer_normalization import LayerNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.core import Activation
 from keras.optimizers import Adam
