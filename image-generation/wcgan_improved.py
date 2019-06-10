@@ -378,7 +378,8 @@ class GAN():
                 for j in range(TRAINING_RATIO):
                     image_batch = discriminator_minibatches[j * BATCH_SIZE:
                                                             (j + 1) * BATCH_SIZE]
-                    noise = np.random.rand(BATCH_SIZE, 100).astype(np.float32)
+                    #noise = np.random.rand(BATCH_SIZE, 100).astype(np.float32)
+                    noise = np.random.normal(0, 1, (batch_size, 100))
 
                     discriminator_loss.append(discriminator_model.train_on_batch(
                         [image_batch, noise],
