@@ -15,7 +15,8 @@ from keras.preprocessing.image import ImageDataGenerator
 fire = ["Charmander", "Charizard", "Charmeleon", "Flareon", "Growlithe", "Magmar", "Moltres", "Ninetales", "Ponyta", "Rapidash", "Vulpix"]
 water = ["Blastoise", "Squirtle", "Wartortle", "Psyduck", "Golduck", "Polywag", "Polywhirl", "Seel", "Shellder", "Krabby", "Kingler",
          "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", "Magikarp", "Vaporeon"]
-images = load_images("./pokemon-data-cleaned","Pikachu")
+
+images = load_images("./mgan-data")
 
 randomize(images)
 images = preprocess(images)
