@@ -19,7 +19,7 @@ import argparse
 import os
 import numpy as np
 from keras.models import Model, Sequential
-from keras.layers import Input, Dense, Reshape, Flatten,Lambda, concatenate
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, Lambda, concatenate
 from keras.layers.merge import _Merge
 from keras.layers.convolutional import Conv2DTranspose,Conv2D
 from keras.layers.normalization import BatchNormalization
@@ -212,23 +212,24 @@ class GAN():
         model = Sequential()
       
         model.add(Conv2D(128, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-        model.add(LayerNormalization())
         model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.25))
 
         model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
-        model.add(LayerNormalization())
         model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.25))
 
         model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
-        model.add(LayerNormalization())
         model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.25))
 
         model.add(Conv2D(1024, kernel_size=5, strides=2, padding="same"))
-        model.add(LayerNormalization())
         model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.25))
 
         model.add(Flatten())
         model.add(Dense(1, kernel_initializer='he_normal'))
+        # model.add(LayerNormalization())
 
         return model
 
