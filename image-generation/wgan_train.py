@@ -16,7 +16,7 @@ fire = ["Charmander", "Charizard", "Charmeleon", "Flareon", "Growlithe", "Magmar
 water = ["Blastoise", "Squirtle", "Wartortle", "Psyduck", "Golduck", "Polywag", "Polywhirl", "Seel", "Shellder", "Krabby", "Kingler",
          "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", "Magikarp", "Vaporeon"]
 
-images = load_images("./mgan-data")
+images = load_images("./mgan-data-small")
 
 randomize(images)
 images = preprocess(images)

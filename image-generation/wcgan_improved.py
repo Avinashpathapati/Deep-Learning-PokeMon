@@ -169,6 +169,7 @@ class GAN():
 
         model.add(Conv2DTranspose(self.depth, kernel_size=5, strides=2, padding="same"))
         model.add(Activation("tanh"))
+        model.summary()
         
         return model
 
@@ -210,7 +211,11 @@ class GAN():
         # Build the model
         model = Sequential()
       
-        model.add(Conv2D(128, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+        model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
+        #model.add(BatchNormalization())
+        model.add(LeakyReLU(alpha=0.2))
+
+        model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
         #model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
@@ -218,17 +223,15 @@ class GAN():
         #model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
-        model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization())
-        model.add(LeakyReLU(alpha=0.2))
-
-        model.add(Conv2D(1024, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization())
-        model.add(LeakyReLU(alpha=0.2))
+        # model.add(Conv2D(1024, kernel_size=5, strides=2, padding="same"))
+        # #model.add(BatchNormalization())
+        # model.add(LeakyReLU(alpha=0.2))
 
         model.add(Flatten())
+        model.add(Dense(1024, kernel_initializer='he_normal'))
+        model.add(LeakyReLU())
         model.add(Dense(1, kernel_initializer='he_normal'))
-
+        model.summary()
         return model
 
     def tile_images(self,image_stack):
