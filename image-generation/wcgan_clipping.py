@@ -167,29 +167,30 @@ class GAN():
         g_loss_arr = []
         d_loss_arr = []
 
+        batches = int(images.shape[0] / batch_size)
+
         for epoch in range(epochs):
             print("Running epoch {}/{}...".format(epoch, epochs))
-            for _ in range(self.n_critic):
-                print(_)
-                training_generator = data_generator.flow(images, batch_size=int(batch_size))
+            training_generator = data_generator.flow(images, batch_size=int(batch_size))
+            for j in range(batches):
+                noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100]).astype(np.float32)
                 imgs = training_generator.next()
-                
-                # Sample noise as generator input
-                noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
+                for _ in range(self.n_critic):
+                    print(_)
 
-                # Generate a batch of new images
-                gen_imgs = self.generator.predict(noise)
+                    # Generate a batch of new images
+                    gen_imgs = self.generator.predict(noise)
 
-                # Train the critic
-                d_loss_real = self.critic.train_on_batch(imgs, valid)
-                d_loss_fake = self.critic.train_on_batch(gen_imgs, fake)
-                d_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
+                    # Train the critic
+                    d_loss_real = self.critic.train_on_batch(imgs, valid)
+                    d_loss_fake = self.critic.train_on_batch(gen_imgs, fake)
+                    d_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
 
-                # Clip critic weights
-                for l in self.critic.layers:
-                    weights = l.get_weights()
-                    weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
-                    l.set_weights(weights)
+                    # Clip critic weights
+                    for l in self.critic.layers:
+                        weights = l.get_weights()
+                        weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
+                        l.set_weights(weights)
 
 
             # ---------------------
