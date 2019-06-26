@@ -29,6 +29,7 @@ from keras.layers.core import Activation
 from keras.optimizers import Adam
 from keras.datasets import mnist
 from keras import backend as K
+K.set_learning_phase(1)
 import tensorflow as tf
 from functools import partial
 from utility import generate_images, save
@@ -71,32 +72,7 @@ class GAN():
         # Following parameter and optimizer set as recommended in paper
         self.n_critic = 5
         self.clip_value = 0.01
-        optimizer = RMSprop(lr=0.0002)
 
-        # Build and compile the critic
-        self.critic = self.make_critic()
-        self.critic.compile(loss=self.wasserstein_loss,
-            optimizer=optimizer,
-            metrics=['accuracy'])
-
-        # Build the generator
-        self.generator = self.make_generator()
-
-        # The generator takes noise as input and generated imgs
-        z = Input(shape=(self.latent_dim,))
-        img = self.generator(z)
-
-        # For the combined model we will only train the generator
-        self.critic.trainable = False
-
-        # The critic takes generated images as input and determines validity
-        valid = self.critic(img)
-
-        # The combined model  (stacked generator and critic)
-        self.combined = Model(z, valid)
-        self.combined.compile(loss=self.wasserstein_loss,
-            optimizer=optimizer,
-            metrics=['accuracy'])
 
     def wasserstein_loss(self, y_true, y_pred):
         return K.mean(y_true * y_pred)
@@ -173,6 +149,36 @@ class GAN():
 
         batches = int(images.shape[0] / batch_size)
 
+         # Build and compile the critic
+        self.critic = self.make_critic()
+        self.generator = self.make_generator()
+
+
+
+        netD_real_input = Input(shape=(self.img_rows, self.img_cols, self.channels))
+        noisev = Input(shape=(self.latent_dim,))
+
+        netD_fake_input = self.generator(noisev)
+
+
+        loss_real = K.mean(self.critic(netD_real_input))
+        loss_fake = K.mean(self.critic(netD_fake_input))
+
+        loss = loss_fake - loss_real
+
+
+        training_updates = RMSprop(lr=0.0002).get_updates(self.critic.trainable_weights,[],loss)
+        netD_train = K.function([netD_real_input, noisev],
+                                [loss_real, loss_fake],
+                                training_updates)
+
+
+        loss = -loss_fake 
+        training_updates = RMSprop(lr=0.0002).get_updates(self.generator.trainable_weights,[], loss)
+        netG_train = K.function([noisev], [loss], training_updates)
+
+
+
         for epoch in range(epochs):
             print("Running epoch {}/{}...".format(epoch, epochs))
             for j in range(batches):
@@ -180,16 +186,11 @@ class GAN():
                 for _ in range(self.n_critic):
                     print(_)
 
-                    # Generate a batch of new images
-                    gen_imgs = self.generator.predict(noise)
                     training_generator = data_generator.flow(images, batch_size=int(batch_size))
                     imgs = training_generator.next()
-
-
-                    # Train the critic
-                    d_loss_real = self.critic.train_on_batch(imgs, valid)
-                    d_loss_fake = self.critic.train_on_batch(gen_imgs, fake)
-                    d_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
+    
+                    errD_real, errD_fake  = netD_train([imgs, noise])
+                    errD = errD_real - errD_fake
 
                     # Clip critic weights
                     for l in self.critic.layers:
@@ -198,16 +199,10 @@ class GAN():
                         l.set_weights(weights)
 
 
-            # ---------------------
-            #  Train Generator
-            # ---------------------
+     
+                errG, = netG_train([noise])
+                print('train:[%d],d_loss:%f,g_loss:%f' % (epoch, errD, errG))
 
-            g_loss = self.combined.train_on_batch(noise, valid)
-
-            # Plot the progress
-            print ("%d [D loss: %f] [G loss: %f]" % (epoch, 1 - d_loss[0], 1 - g_loss[0]))
-            d_loss_arr.append(1 - d_loss[0])
-            g_loss_arr.append(1 - g_loss[0])
 
             # If at save interval => save generated image samples
             if epoch % 50 == 0:
