@@ -29,9 +29,11 @@ from keras.layers.core import Activation
 from keras.optimizers import Adam
 from keras.datasets import mnist
 from keras import backend as K
+import tensorflow as tf
 from functools import partial
 from utility import generate_images, save
 import matplotlib.pyplot as plt
+from utils import *
 
 try:
     from PIL import Image
@@ -41,6 +43,8 @@ except ImportError:
     exit()
 
 batch_size = 64
+version = 'newPokemon'
+newPoke_path = './' + version
 
 # The training ratio is the number of discriminator updates
 # per generator update. The paper uses 5.
@@ -171,15 +175,16 @@ class GAN():
 
         for epoch in range(epochs):
             print("Running epoch {}/{}...".format(epoch, epochs))
-            training_generator = data_generator.flow(images, batch_size=int(batch_size))
             for j in range(batches):
                 noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100]).astype(np.float32)
-                imgs = training_generator.next()
                 for _ in range(self.n_critic):
                     print(_)
 
                     # Generate a batch of new images
                     gen_imgs = self.generator.predict(noise)
+                    training_generator = data_generator.flow(images, batch_size=int(batch_size))
+                    imgs = training_generator.next()
+
 
                     # Train the critic
                     d_loss_real = self.critic.train_on_batch(imgs, valid)
@@ -209,8 +214,8 @@ class GAN():
 
                 self.generator.save(output_path + "/generator.h5")
                 self.critic.save(output_path + "/discriminator.h5")
-                images_gen = generate_images(self.generator, 10)
-                save(images_gen, output_path + "/epoch-" + str(epoch))
+                images_gen = generate_images(self.generator, 64)
+                save_images(images_gen, [8,8] ,newPoke_path + '/epoch_' + str(epoch) + '.jpg')
                 print("saving training history...")
                 plt.plot([x for x in d_loss_arr])
                 plt.title("Discriminator training loss")

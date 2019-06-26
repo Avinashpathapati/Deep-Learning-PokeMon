@@ -10,6 +10,7 @@ import cv2
 import random
 import scipy.misc
 from utils import *
+from utility import generate_images, save
 
 slim = tf.contrib.slim
 
@@ -193,6 +194,7 @@ def train():
     batch_size = BATCH_SIZE
     image_batch, samples_num = process_data()
     
+    
     batch_num = int(samples_num / batch_size)
     total_batch = 0
     sess = tf.Session()
@@ -248,8 +250,9 @@ def train():
             imgtest = sess.run(fake_image, feed_dict={random_input: sample_noise, is_train: False})
             # imgtest = imgtest * 255.0
             # imgtest.astype(np.uint8)
-            save_images(imgtest, [8,8] ,newPoke_path + '/epoch' + str(i) + '.jpg')
-            
+            #save_images(imgtest, [8,8] ,newPoke_path + '/epoch' + str(i) + '.jpg')
+            save(imgtest, newPoke_path + "/epoch-" + str(i))
+
             print('train:[%d],d_loss:%f,g_loss:%f' % (i, dLoss, gLoss))
     coord.request_stop()
     coord.join(threads)

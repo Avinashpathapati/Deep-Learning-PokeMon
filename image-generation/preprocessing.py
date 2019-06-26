@@ -18,5 +18,4 @@ def preprocess(images):
   images = __resize(images, dimensions=(128, 128))
   images = np.array(images)
   images = normalize(images, pixel_range=(0, 1))
-
   return images
