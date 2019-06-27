@@ -63,6 +63,7 @@ def generate_images(generator, number):
   print("generating images...")
   noise = np.random.uniform(-1.0, 1.0, size=[number, 100]).astype(np.float32)
   images = generator.predict(noise)
+  images = normalize(images, pixel_range=(0, 255))
   return images
 
 
@@ -74,6 +75,5 @@ def save(images, path):
 
   image_name = 0  
   for image in images:
-    scipy.misc.imsave(os.path.join(str(path), str(image_name) + ".jpg"), image)
-    #cv.imwrite(os.path.join(str(path), str(image_name) + ".jpg"), image)
+    cv.imwrite(os.path.join(str(path), str(image_name) + ".jpg"), image)
     image_name += 1

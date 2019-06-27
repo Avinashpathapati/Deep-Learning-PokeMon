@@ -189,14 +189,14 @@ class GAN():
                     training_generator = data_generator.flow(images, batch_size=int(batch_size))
                     imgs = training_generator.next()
     
-                    errD_real, errD_fake  = netD_train([imgs, noise])
-                    errD = errD_real - errD_fake
-
                     # Clip critic weights
                     for l in self.critic.layers:
                         weights = l.get_weights()
                         weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
                         l.set_weights(weights)
+
+                    errD_real, errD_fake  = netD_train([imgs, noise])
+                    errD = errD_real - errD_fake
 
 
      
@@ -210,7 +210,8 @@ class GAN():
                 self.generator.save(output_path + "/generator.h5")
                 self.critic.save(output_path + "/discriminator.h5")
                 images_gen = generate_images(self.generator, 64)
-                save_images(images_gen, [8,8] ,newPoke_path + '/epoch_' + str(epoch) + '.jpg')
+
+                save(images_gen, output_path + "/epoch-" + str(epoch))
                 print("saving training history...")
                 plt.plot([x for x in d_loss_arr])
                 plt.title("Discriminator training loss")
