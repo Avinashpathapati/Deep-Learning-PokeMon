@@ -61,7 +61,7 @@ def normalize(images, pixel_range):
 
 def generate_images(generator, number):
   print("generating images...")
-  noise = np.random.uniform(-1.0, 1.0, size=[number, 100]).astype(np.float32)
+  noise = np.random.normal(0, 1, (number, 100))
   images = generator.predict(noise)
   images = normalize(images, pixel_range=(0, 255))
   return images

@@ -118,19 +118,19 @@ class GAN():
         model = Sequential()
       
         model.add(Conv2D(64, kernel_size=5, strides=2, padding="same", input_shape=input_shape))
-        #model.add(BatchNormalization())
+        model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization())
+        model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(256, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization())
+        model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Conv2D(512, kernel_size=5, strides=2, padding="same"))
-        #model.add(BatchNormalization())
+        model.add(BatchNormalization())
         model.add(LeakyReLU(alpha=0.2))
 
         model.add(Flatten())
@@ -182,24 +182,24 @@ class GAN():
         for epoch in range(epochs):
             print("Running epoch {}/{}...".format(epoch, epochs))
             for j in range(batches):
-                noise = np.random.uniform(-1.0, 1.0, size=[batch_size, 100]).astype(np.float32)
                 for _ in range(self.n_critic):
                     print(_)
 
                     training_generator = data_generator.flow(images, batch_size=int(batch_size))
                     imgs = training_generator.next()
-    
+                    noise = np.random.normal(0, 1, (batch_size, 100))
+
+                    errD_real, errD_fake  = netD_train([imgs, noise])
+                    errD = errD_real - errD_fake
+
                     # Clip critic weights
                     for l in self.critic.layers:
                         weights = l.get_weights()
                         weights = [np.clip(w, -self.clip_value, self.clip_value) for w in weights]
                         l.set_weights(weights)
 
-                    errD_real, errD_fake  = netD_train([imgs, noise])
-                    errD = errD_real - errD_fake
 
-
-     
+                noise = np.random.normal(0, 1, (batch_size, 100))
                 errG, = netG_train([noise])
                 print('train:[%d],d_loss:%f,g_loss:%f' % (epoch, errD, errG))
 
