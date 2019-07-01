@@ -1,6 +1,3 @@
-# Train module
-# Author: Andreas Pentaliotis
-# Module to implement training of a model on the data.
 
 import numpy as np
 import random

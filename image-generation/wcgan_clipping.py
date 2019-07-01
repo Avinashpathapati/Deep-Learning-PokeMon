@@ -1,23 +1,7 @@
-"""An implementation of the improved WGAN described in https://arxiv.org/abs/1704.00028
-The improved WGAN has a term in the loss function which penalizes the network if its
-gradient norm moves away from 1. This is included because the Earth Mover (EM) distance
-used in WGANs is only easy to calculate for 1-Lipschitz functions (i.e. functions where
-the gradient norm has a constant upper bound of 1).
-The original WGAN paper enforced this by clipping weights to very small values
-[-0.01, 0.01]. However, this drastically reduced network capacity. Penalizing the
-gradient norm is more natural, but this requires second-order gradients. These are not
-supported for some tensorflow ops (particularly MaxPool and AveragePool) in the current
-release (1.0.x), but they are supported in the current nightly builds
-(1.1.0-rc1 and higher).
-To avoid this, this model uses strided convolutions instead of Average/Maxpooling for
-downsampling. If you wish to use pooling operations in your discriminator, please ensure
-you update Tensorflow to 1.1.0-rc1 or higher. I haven't tested this with Theano at all.
-The model saves images using pillow. If you don't have pillow, either install it or
-remove the calls to generate_images.
-"""
 import argparse
 import os
 import numpy as np
+import pickle
 from keras.models import Model, Sequential
 from keras.optimizers import RMSprop
 from keras.layers import Input, Dense, Reshape, Flatten,Lambda, concatenate
@@ -47,17 +31,6 @@ batch_size = 64
 version = 'newPokemon'
 newPoke_path = './' + version
 
-# The training ratio is the number of discriminator updates
-# per generator update. The paper uses 5.
-
-class RandomWeightedAverage(_Merge):
-    """Takes a randomly-weighted average of two tensors. In geometric terms, this
-    outputs a random point on the line between each pair of input points.
-    Inheriting from _Merge is a little messy but it was the quickest solution I could
-    think of. Improvements appreciated."""
-    def _merge_function(self, inputs):
-        weights = K.random_uniform((BATCH_SIZE, 1, 1, 1))
-        return (weights * inputs[0]) + ((1 - weights) * inputs[1])
 
 
 class GAN():
@@ -72,10 +45,6 @@ class GAN():
         # Following parameter and optimizer set as recommended in paper
         self.n_critic = 5
         self.clip_value = 0.01
-
-
-    def wasserstein_loss(self, y_true, y_pred):
-        return K.mean(y_true * y_pred)
 
 
     def make_generator(self):
@@ -141,9 +110,7 @@ class GAN():
 
     def train(self,images, epochs, output_path, save_interval, data_generator):
 
-        # Adversarial ground truths
-        valid = -np.ones((batch_size, 1))
-        fake = np.ones((batch_size, 1))
+  
         g_loss_arr = []
         d_loss_arr = []
 
@@ -164,6 +131,7 @@ class GAN():
         loss_real = K.mean(self.critic(netD_real_input))
         loss_fake = K.mean(self.critic(netD_fake_input))
 
+        #wgan discriminator loss
         loss = loss_fake - loss_real
 
 
@@ -172,7 +140,7 @@ class GAN():
                                 [loss_real, loss_fake],
                                 training_updates)
 
-
+        #wgan generator loss
         loss = -loss_fake 
         training_updates = RMSprop(lr=0.0002).get_updates(self.generator.trainable_weights,[], loss)
         netG_train = K.function([noisev], [loss], training_updates)
@@ -202,6 +170,9 @@ class GAN():
                 noise = np.random.normal(0, 1, (batch_size, 100))
                 errG, = netG_train([noise])
                 print('train:[%d],d_loss:%f,g_loss:%f' % (epoch, errD, errG))
+            d_loss_arr.append(errD)
+            g_loss_arr.append(errG)
+
 
 
             # If at save interval => save generated image samples
@@ -209,7 +180,7 @@ class GAN():
 
                 self.generator.save(output_path + "/generator.h5")
                 self.critic.save(output_path + "/discriminator.h5")
-                images_gen = generate_images(self.generator, 64)
+                images_gen = generate_images(self.generator, 7)
 
                 save(images_gen, output_path + "/epoch-" + str(epoch))
                 print("saving training history...")
@@ -226,3 +197,11 @@ class GAN():
                 plt.ylabel("Loss")
                 plt.savefig(output_path + "/epoch-" + str(epoch) + "/generator-training-loss")
                 plt.close()
+
+                #saving into pickle file
+
+                with open(output_path + "/epoch-" + str(epoch)+'/trainHistoryDict_'+"epoch_"+str(epoch)+"_disc", 'wb') as file_pi:
+                    pickle.dump(d_loss_arr, file_pi)
+
+                with open(output_path + "/epoch-" + str(epoch)+'/trainHistoryDict_'+"epoch_"+str(epoch)+"_gen", 'wb') as file_pi:
+                    pickle.dump(g_loss_arr, file_pi)
